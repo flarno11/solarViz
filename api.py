@@ -117,7 +117,7 @@ def metrics():
         updated_at = None
 
     week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
-    results = list(map(lambda r: 'production_past_7days{deviceId=' + r['_id'] + '} ' + str(-r['wattHours']),
+    results = list(map(lambda r: 'production_past_7days{deviceId="' + r['_id'] + '"} ' + str(-r['wattHours']),
                        log_collection.aggregate([
                            {'$match': {'time': {'$gt': week_ago}}},
                            {'$group': {'_id': '$deviceId', 'wattHours': {'$sum': '$wattHours'}}},

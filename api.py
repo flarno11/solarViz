@@ -128,7 +128,7 @@ def metrics():
 
     results.append('updated_at ' + str(updated_at))
 
-    response = make_response("\n".join(results))
+    response = make_response("\n".join(results) + "\n")
     response.headers["content-type"] = "text/plain"
     return response
 

@@ -1,18 +1,16 @@
-import re
 import json
 import datetime
-import os
-import urllib
-from datetime import timedelta
-from time import sleep
+from datetime import timezone
 
 import pymongo
-from flask import Flask, redirect, url_for, jsonify, request
+from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
+from flask.helpers import make_response
 
 from config import setup_logging, setup_db
 from lib import TimeFormat
 import smartMe
+
 
 logger = setup_logging()
 db = setup_db()
@@ -108,6 +106,31 @@ def get_data(device_id, aggregation_date_format):
         {'$limit': 50},
         {'$sort': {'_id': pymongo.ASCENDING}},
     ])])
+
+
+@app.route('/metrics')
+def metrics():
+    existing_entry = log_collection.find_one(sort=[('updatedAt', pymongo.DESCENDING), ])
+    if existing_entry:
+        updated_at = existing_entry['updatedAt'].replace(tzinfo=timezone.utc).timestamp()
+    else:
+        updated_at = None
+
+    week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    results = list(map(lambda r: 'production_past_7days{deviceId=' + r['_id'] + '} ' + str(-r['wattHours']),
+                       log_collection.aggregate([
+                           {'$match': {'time': {'$gt': week_ago}}},
+                           {'$group': {'_id': '$deviceId', 'wattHours': {'$sum': '$wattHours'}}},
+                           ]
+                       )
+                       )
+                   )
+
+    results.append('updated_at ' + str(updated_at))
+
+    response = make_response("\n".join(results))
+    response.headers["content-type"] = "text/plain"
+    return response
 
 
 app.json_encoder = JSONEncoder

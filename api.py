@@ -1,3 +1,4 @@
+import os
 import json
 import datetime
 from datetime import timezone
@@ -137,5 +138,5 @@ app.json_encoder = JSONEncoder
 
 
 if __name__ == "__main__":
-    # port = int(os.getenv("VCAP_APP_PORT", "-1"))
-    app.run()
+    port = int(os.getenv("VCAP_APP_PORT", "5000"))
+    app.run(port=port)

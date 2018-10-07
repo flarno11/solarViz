@@ -58,7 +58,7 @@ angular.module("myApp", ['ngRoute', 'ngMaterial', 'suc.charts',])
 })
 
 .controller('homeController', function($scope, $q, $log, $http, $timeout, $window, toaster) {
-    $scope.deviceId = 'd755be6d-f691-4274-918f-ed90d782e668';
+    $scope.deviceId = '4ea9ec0b-b26b-467c-af63-e5912aebd3af';
 })
 
 .directive('chart', function($log, $http) {
